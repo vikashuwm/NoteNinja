@@ -6,14 +6,12 @@ from PyQt5.QtGui import QFont
 
 
 class TextEditorTab(QWidget):
-    def __init__(self, notes_manager):
+    def __init__(self):
         super().__init__()
-        self.notes_manager = notes_manager
         self.current_filename = None
         self.init_ui()
 
     def init_ui(self):
-        # 🌈 Pastel + glass theme consistent with NotesSearchTab
         style = """
             QWidget {
                 background-color: #e8faff;
@@ -72,7 +70,7 @@ class TextEditorTab(QWidget):
 
         layout = QVBoxLayout()
 
-        # 📎 Toolbar buttons
+        # Toolbar
         toolbar_layout = QHBoxLayout()
         self.new_button = QPushButton("🆕 New")
         self.save_button = QPushButton("💾 Save")
@@ -88,7 +86,7 @@ class TextEditorTab(QWidget):
             toolbar_layout.addWidget(button)
         toolbar_layout.addStretch()
 
-        # 📝 Title Input
+        # Title input
         title_layout = QHBoxLayout()
         title_label = QLabel("Title:")
         self.title_input = QLineEdit()
@@ -97,12 +95,12 @@ class TextEditorTab(QWidget):
         title_layout.addWidget(title_label)
         title_layout.addWidget(self.title_input)
 
-        # 🧾 Editor
+        # Text editor
         self.text_editor = QTextEdit()
         self.text_editor.setPlaceholderText("Start typing your note here...")
         self.text_editor.setFont(QFont("Arial", 12))
 
-        # Assemble Layout
+        # Assemble layout
         layout.addLayout(toolbar_layout)
         layout.addLayout(title_layout)
         layout.addWidget(self.text_editor)
@@ -112,37 +110,19 @@ class TextEditorTab(QWidget):
         self.setLayout(layout)
 
     def new_note(self):
+        print("New note clicked")
         self.title_input.clear()
         self.text_editor.clear()
         self.current_filename = None
 
     def save_note(self):
-        title = self.title_input.text() or "Untitled"
-        content = self.text_editor.toPlainText()
-
-        if not content.strip():
-            QMessageBox.warning(self, "Warning", "Cannot save empty note!")
-            return
-
-        filename = self.notes_manager.save_note(title, content, self.current_filename)
-        self.current_filename = filename
-        QMessageBox.information(self, "Success", f"Note saved successfully!")
+        print("Save note clicked")
 
     def save_as_pdf(self):
-        title = self.title_input.text() or "Untitled"
-        content = self.text_editor.toPlainText()
-
-        if not content.strip():
-            QMessageBox.warning(self, "Warning", "Cannot save empty note as PDF!")
-            return
-
-        success = self.notes_manager.save_as_pdf(title, content)
-        if success:
-            QMessageBox.information(self, "Success", "Note saved as PDF successfully!")
-        else:
-            QMessageBox.critical(self, "Error", "Failed to save PDF!")
+        print("Save as PDF clicked")
 
     def clear_editor(self):
+        print("Clear editor clicked")
         reply = QMessageBox.question(
             self,
             'Clear Editor',
