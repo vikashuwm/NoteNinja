@@ -1,5 +1,6 @@
+import os
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit,
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QLabel,
     QMessageBox, QFileDialog
 )
 from PyQt5.QtGui import (
@@ -7,7 +8,6 @@ from PyQt5.QtGui import (
     QTextImageFormat, QPixmap
 )
 from PyQt5.QtCore import QSize, Qt
-import os
 
 
 class ImageTextEdit(QTextEdit):
@@ -62,32 +62,56 @@ class TextEditorTab(QWidget):
                 background-color: rgba(58, 71, 213, 0.3);
                 border-radius: 10px;
             }
+            QLabel {
+                font-size: 10px;
+                color: #333;
+            }
         """
         self.setStyleSheet(style)
 
         layout = QVBoxLayout()
-        toolbar_layout = QHBoxLayout()
         icon_path = "assets"
 
-        # Buttons
-        self.new_button = self.create_button(icon_path, "new.png", "New Note", self.new_note)
-        self.open_button = self.create_button(icon_path, "open.png", "Open Note", self.open_note)
-        self.save_button = self.create_button(icon_path, "save.png", "Save Note", self.save_note)
-        self.clear_button = self.create_button(icon_path, "clear.png", "Clear Editor", self.clear_editor)
-        self.undo_button = self.create_button(icon_path, "undo.png", "Undo", self.text_editor_undo)
-        self.bold_button = self.create_button(icon_path, "bold.png", "Bold Selected Text", self.toggle_bold)
-        self.image_button = self.create_button(icon_path, "camera.png", "Insert Image from File", self.insert_image_from_file)
+        toolbar_layout = QHBoxLayout()
 
-        for btn in [
-            self.new_button, self.open_button, self.save_button, self.clear_button,
-            self.undo_button, self.bold_button, self.image_button
-        ]:
-            toolbar_layout.addWidget(btn)
-            btn.setIconSize(QSize(24, 24))
+        def create_button_with_label(icon_file, tooltip, callback, label_text):
+            button = QPushButton()
+            button.setIcon(QIcon(os.path.join(icon_path, icon_file)))
+            button.setToolTip(tooltip)
+            button.clicked.connect(callback)
+            button.setIconSize(QSize(24, 24))
+            button.setFixedSize(40, 40)
+
+            label = QLabel(label_text)
+            label.setAlignment(Qt.AlignCenter)
+            label.setFixedHeight(16)
+
+            v_layout = QVBoxLayout()
+            v_layout.setContentsMargins(2, 0, 2, 0)
+            v_layout.setSpacing(0)  # reduce spacing here
+            v_layout.addWidget(button)
+            v_layout.addWidget(label)
+
+            container = QWidget()
+            container.setLayout(v_layout)
+            return container
+
+        buttons_with_labels = [
+            ("new.png", "New Note", self.new_note, "New"),
+            ("open.png", "Open Note", self.open_note, "Open"),
+            ("save.png", "Save Note", self.save_note, "Save"),
+            ("clear.png", "Clear Editor", self.clear_editor, "Clear"),
+            ("undo.png", "Undo", self.text_editor_undo, "Undo"),
+            ("bold.png", "Bold Selected Text", self.toggle_bold, "Bold"),
+            ("camera.png", "Insert Image from File", self.insert_image_from_file, "Image"),
+        ]
+
+        for icon_file, tooltip, callback, label_text in buttons_with_labels:
+            widget = create_button_with_label(icon_file, tooltip, callback, label_text)
+            toolbar_layout.addWidget(widget)
 
         toolbar_layout.addStretch()
 
-        # Text Editor
         self.text_editor = ImageTextEdit()
         self.text_editor.setPlaceholderText("Start typing your note here...")
         self.text_editor.setFont(QFont("Arial", 12))
@@ -97,13 +121,6 @@ class TextEditorTab(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(12)
         self.setLayout(layout)
-
-    def create_button(self, path, icon_file, tooltip, callback):
-        button = QPushButton()
-        button.setIcon(QIcon(os.path.join(path, icon_file)))
-        button.setToolTip(tooltip)
-        button.clicked.connect(callback)
-        return button
 
     def new_note(self):
         self.text_editor.clear()

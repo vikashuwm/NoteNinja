@@ -14,7 +14,7 @@ class NoteNinja(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("🪶 NoteNinja — Smart Note Taking")
+        self.setWindowTitle("🪶 NoteNinja")
         self.setGeometry(100, 100, 1200, 800)
 
         # Set window icon if available
@@ -34,9 +34,9 @@ class NoteNinja(QMainWindow):
         self.search_tab = NotesSearchTab()
         self.editor_tab = TextEditorTab()
 
-        self.tab_widget.addTab(self.web_tab, "🌐 Web Browser")
         self.tab_widget.addTab(self.search_tab, "🔍 Search Notes")
         self.tab_widget.addTab(self.editor_tab, "📝 Text Editor")
+        self.tab_widget.addTab(self.web_tab, "🌐 Web Browser")
 
         self.tab_widget.currentChanged.connect(self.on_tab_changed)
         layout.addWidget(self.tab_widget)
