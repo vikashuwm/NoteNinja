@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton,
-    QListWidget, QListWidgetItem, QTextEdit, QMessageBox, QSplitter
+    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget,
+    QListWidgetItem, QTextEdit, QMessageBox, QSplitter, QToolButton, QPushButton
 )
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-
 
 class NotesSearchTab(QWidget):
     def __init__(self, notes_manager):
@@ -25,11 +24,13 @@ class NotesSearchTab(QWidget):
             QLineEdit {
                 border: none;
                 border-radius: 20px;
-                padding: 10px 16px;
+                padding-left: 14px;
+                padding-right: 40px; /* Increased padding to accommodate icon */
+                padding-top: 10px;
+                padding-bottom: 10px;
                 font-size: 14px;
                 background-color: rgba(255, 255, 255, 0.7);
                 color: #333;
-                margin-right: 10px;
             }
             QLineEdit:focus {
                 background-color: rgba(255, 255, 255, 0.9);
@@ -38,17 +39,15 @@ class NotesSearchTab(QWidget):
                     stop:0 #00d2ff, stop:1 #3a47d5
                 );
             }
-            QPushButton {
+            QToolButton {
+                background: transparent;
                 border: none;
-                border-radius: 12px;
-                background-color: rgba(255, 255, 255, 0.5);
-                padding: 6px 12px;
+                padding: 0px;
+                margin-right: 8px; /* Ensure icon stays within bounds */
             }
-            QPushButton:hover {
-                background-color: rgba(0, 210, 255, 0.3);
-            }
-            QPushButton:pressed {
-                background-color: rgba(58, 71, 213, 0.3);
+            QToolButton:hover {
+                background-color: rgba(0, 210, 255, 0.2);
+                border-radius: 10px;
             }
             QListWidget {
                 background-color: rgba(255, 255, 255, 0.6);
@@ -67,30 +66,31 @@ class NotesSearchTab(QWidget):
         """
         self.setStyleSheet(style)
 
-        # Search Bar
+        # 🔍 Search bar
         self.search_bar = QLineEdit()
-        self.search_bar.setPlaceholderText("🔍 Search your notes...")
-        self.search_bar.textChanged.connect(self.search_notes)
+        self.search_bar.setPlaceholderText("Search your notes...")
         self.search_bar.setMinimumHeight(36)
+        self.search_bar.textChanged.connect(self.search_notes)
         top_layout.addWidget(self.search_bar)
 
-        # Optional browser-style icon buttons
-        browser_icons = {
-            "Chrome": "assets/icons/chrome.png",
-            "Firefox": "assets/icons/firefox.png",
-            "Edge": "assets/icons/edge.png",
-            "Safari": "assets/icons/safari.png"
-        }
+        # Icon inside QLineEdit
+        self.search_button = QToolButton(self.search_bar)
+        # Try to load the icon, with a fallback
+        icon = QIcon.fromTheme("system-search")
+        if icon.isNull():  # Fallback if system theme icon is not available
+            try:
+                icon = QIcon("assets/go.png")  # Ensure this path is correct
+            except:
+                # Ultimate fallback: use a default Qt icon
+                icon = QIcon.fromTheme("edit-find")
+        self.search_button.setIcon(icon)
+        self.search_button.setIconSize(QSize(16, 16))
+        self.search_button.setCursor(Qt.PointingHandCursor)
+        self.search_button.clicked.connect(self.manual_search)
 
-        for name, path in browser_icons.items():
-            if not QIcon(path).isNull():
-                btn = QPushButton()
-                btn.setToolTip(name)
-                btn.setIcon(QIcon(path))
-                btn.setIconSize(QSize(22, 22))
-                btn.setFlat(True)
-                btn.setEnabled(False)  # Placeholder
-                top_layout.addWidget(btn)
+        # Position the icon inside the QLineEdit
+        self.search_button.setFixedSize(24, 24)  # Ensure button size fits icon
+        self.search_button.move(self.search_bar.width() - 32, (self.search_bar.height() - 24) // 2)
 
         # Notes list and preview area
         self.notes_list = QListWidget()
@@ -118,10 +118,14 @@ class NotesSearchTab(QWidget):
         layout.setSpacing(12)
         self.setLayout(layout)
 
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Reposition the icon when the search bar is resized
+        self.search_button.move(self.search_bar.width() - 32, (self.search_bar.height() - 24) // 2)
+
     def refresh_notes_list(self):
         self.notes_list.clear()
         notes = self.notes_manager.get_all_notes()
-
         for note_data in notes:
             item = QListWidgetItem(f"{note_data['title']} - {note_data['date']}")
             item.setData(Qt.UserRole, note_data)
@@ -135,6 +139,9 @@ class NotesSearchTab(QWidget):
             title_match = search_term in note_data['title'].lower()
             content_match = search_term in note_data['content'].lower()
             item.setHidden(not (title_match or content_match or not search_term))
+
+    def manual_search(self):
+        print("Manual search button clicked.")
 
     def display_note(self, item):
         note_data = item.data(Qt.UserRole)

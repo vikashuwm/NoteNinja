@@ -1,5 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTextEdit, QLabel, QMessageBox
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit,
+    QTextEdit, QLabel, QMessageBox
+)
 from PyQt5.QtGui import QFont
+
 
 class TextEditorTab(QWidget):
     def __init__(self, notes_manager):
@@ -9,7 +13,7 @@ class TextEditorTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        # Apply pastel + glass style similar to NotesSearchTab
+        # 🌈 Pastel + glass theme consistent with NotesSearchTab
         style = """
             QWidget {
                 background-color: #e8faff;
@@ -17,7 +21,10 @@ class TextEditorTab(QWidget):
             QLineEdit {
                 border: none;
                 border-radius: 20px;
-                padding: 10px 16px;
+                padding-left: 14px;
+                padding-right: 14px;
+                padding-top: 10px;
+                padding-bottom: 10px;
                 font-size: 14px;
                 background-color: rgba(255, 255, 255, 0.7);
                 color: #333;
@@ -31,14 +38,16 @@ class TextEditorTab(QWidget):
             }
             QPushButton {
                 border: none;
-                border-radius: 12px;
-                background-color: rgba(255, 255, 255, 0.5);
-                padding: 6px 16px;
+                border-radius: 10px;
+                background-color: rgba(255, 255, 255, 0.6);
+                padding: 8px 16px;
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 14px;
+                color: #333;
+                min-height: 34px;
             }
             QPushButton:hover {
-                background-color: rgba(0, 210, 255, 0.3);
+                background-color: rgba(0, 210, 255, 0.2);
             }
             QPushButton:pressed {
                 background-color: rgba(58, 71, 213, 0.3);
@@ -52,8 +61,8 @@ class TextEditorTab(QWidget):
             QTextEdit {
                 background-color: rgba(255, 255, 255, 0.65);
                 border: none;
-                border-radius: 12px;
-                padding: 14px;
+                border-radius: 10px;
+                padding: 10px;
                 font-size: 14px;
                 color: #333;
                 font-family: Arial, sans-serif;
@@ -63,43 +72,41 @@ class TextEditorTab(QWidget):
 
         layout = QVBoxLayout()
 
-        # Toolbar with buttons
+        # 📎 Toolbar buttons
         toolbar_layout = QHBoxLayout()
-        self.new_button = QPushButton("New")
-        self.save_button = QPushButton("Save")
-        self.save_pdf_button = QPushButton("Save as PDF")
-        self.clear_button = QPushButton("Clear")
+        self.new_button = QPushButton("🆕 New")
+        self.save_button = QPushButton("💾 Save")
+        self.save_pdf_button = QPushButton("🖨️ Save as PDF")
+        self.clear_button = QPushButton("🧹 Clear")
 
         self.new_button.clicked.connect(self.new_note)
         self.save_button.clicked.connect(self.save_note)
         self.save_pdf_button.clicked.connect(self.save_as_pdf)
         self.clear_button.clicked.connect(self.clear_editor)
 
-        toolbar_layout.addWidget(self.new_button)
-        toolbar_layout.addWidget(self.save_button)
-        toolbar_layout.addWidget(self.save_pdf_button)
-        toolbar_layout.addWidget(self.clear_button)
+        for button in [self.new_button, self.save_button, self.save_pdf_button, self.clear_button]:
+            toolbar_layout.addWidget(button)
         toolbar_layout.addStretch()
 
-        # Title input with label
+        # 📝 Title Input
         title_layout = QHBoxLayout()
         title_label = QLabel("Title:")
         self.title_input = QLineEdit()
         self.title_input.setPlaceholderText("Enter note title...")
+        self.title_input.setMinimumHeight(36)
         title_layout.addWidget(title_label)
         title_layout.addWidget(self.title_input)
 
-        # Text editor area
+        # 🧾 Editor
         self.text_editor = QTextEdit()
         self.text_editor.setPlaceholderText("Start typing your note here...")
         self.text_editor.setFont(QFont("Arial", 12))
 
+        # Assemble Layout
         layout.addLayout(toolbar_layout)
         layout.addLayout(title_layout)
         layout.addWidget(self.text_editor)
-
-        # Margins and spacing for a nice layout
-        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(12)
 
         self.setLayout(layout)

@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl, QSize
+from PyQt5.QtCore import Qt, QUrl, QSize
 from PyQt5.QtGui import QIcon
+
 
 class WebViewTab(QWidget):
     def __init__(self):
@@ -9,22 +10,25 @@ class WebViewTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout, nav_layout = QVBoxLayout(), QHBoxLayout()
-        icon_size = QSize(28, 28)
+        layout = QVBoxLayout()
+        nav_layout = QHBoxLayout()
+        icon_size = QSize(24, 24)
 
-        # Light pastel and glassmorphic theme
+        # 🌈 Pastel + glassmorphic theme (matching NotesSearchTab)
         style = """
             QWidget {
-                background-color: #f0f8ff;
+                background-color: #e8faff;
             }
             QLineEdit {
                 border: none;
                 border-radius: 20px;
-                padding: 10px 16px;
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-top: 10px;
+                padding-bottom: 10px;
                 font-size: 14px;
                 background-color: rgba(255, 255, 255, 0.7);
                 color: #333;
-                margin: 0 12px;
             }
             QLineEdit:focus {
                 background-color: rgba(255, 255, 255, 0.9);
@@ -35,10 +39,9 @@ class WebViewTab(QWidget):
             }
             QPushButton {
                 border: none;
-                padding: 8px;
                 border-radius: 14px;
                 background-color: rgba(255, 255, 255, 0.6);
-                margin-right: 6px;
+                padding: 6px;
             }
             QPushButton:hover {
                 background-color: rgba(0, 210, 255, 0.3);
@@ -47,20 +50,24 @@ class WebViewTab(QWidget):
                 background-color: rgba(58, 71, 213, 0.3);
             }
             QPushButton:disabled {
-                opacity: 0.3;
+                opacity: 0.4;
             }
         """
         self.setStyleSheet(style)
 
-        # Buttons
-        icons = [("back", "Back", self.web_view_back), ("forward", "Forward", self.web_view_forward),
-                 ("refresh", "Refresh", self.web_view_reload), ("go", "Go", self.navigate_to_url)]
+        # Navigation buttons
+        icons = [
+            ("back", "Back", self.web_view_back),
+            ("forward", "Forward", self.web_view_forward),
+            ("refresh", "Refresh", self.web_view_reload),
+            ("go", "Go", self.navigate_to_url)
+        ]
         for name, tip, handler in icons:
             btn = QPushButton()
             btn.setIcon(QIcon(f"assets/{name}.png"))
             btn.setToolTip(tip)
-            btn.setFlat(True)
             btn.setIconSize(icon_size)
+            btn.setCursor(Qt.PointingHandCursor)
             btn.clicked.connect(handler)
             setattr(self, f"{name}_button", btn)
             nav_layout.addWidget(btn)
@@ -68,11 +75,12 @@ class WebViewTab(QWidget):
         # URL Bar
         self.url_bar = QLineEdit()
         self.url_bar.setPlaceholderText("Search or enter website...")
-        self.url_bar.setMinimumHeight(40)
+        self.url_bar.setMinimumHeight(36)
         self.url_bar.returnPressed.connect(self.navigate_to_url)
+
         nav_layout.insertWidget(3, self.url_bar, 1)
         nav_layout.setSpacing(8)
-        nav_layout.setContentsMargins(16, 12, 16, 12)
+        nav_layout.setContentsMargins(12, 12, 12, 12)
 
         # Web View
         self.web_view = QWebEngineView()
@@ -80,6 +88,7 @@ class WebViewTab(QWidget):
         self.web_view.urlChanged.connect(self.update_url_bar)
         self.web_view.setStyleSheet("border: none; background-color: #f8fcff;")
 
+        # Final Layout
         layout.addLayout(nav_layout)
         layout.addWidget(self.web_view)
         layout.setContentsMargins(0, 0, 0, 0)
